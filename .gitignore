@@ -1,0 +1,9 @@
+serviceAccountKey.json
+/node_modules
+*.env
+.idea
+
+/_template_controller.txt
+/_template_routes.txt
+/basecamp-models.csv
+/convert_csv_to_models.py
