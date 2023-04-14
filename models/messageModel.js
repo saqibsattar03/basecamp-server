@@ -8,9 +8,21 @@ export const MessageSchema = mongoose.Schema({
 		type: String,
 		required: true,
 	},
-	content: {
+	text: {
 		type: String,
-		required: true,
+		required: false,
+	},
+	image_url: {
+		type: String,
+		required: false,
+	},
+	video_url: {
+		type: String,
+		required: false,
+	},
+	link_metadata: {
+		type: Object,
+		required: false,
 	},
 	created_by: {
 		type: mongoose.Schema.Types.ObjectId,
