@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler'
 import UserFollower from '../models/userFollowerModel.js'
-import MessageStat from "../models/messageStatModel.js";
 import AppError from "../utilis/appError.js";
 
 // ******** CREATE ********
@@ -84,7 +83,7 @@ const getUserFollowerById = asyncHandler(async (req, res) => {
 // @route   PUT /api/user-followers/:id
 // @access  Private
 const updateUserFollower = asyncHandler(async (req, res, next) => {
-  const userFollower = await MessageStat.findByIdAndUpdate(req.params.id, req.body, {
+  const userFollower = await UserFollower.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true
   })

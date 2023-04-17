@@ -7,11 +7,14 @@ import {
   getUserById,
   updateUser,
   getSortedUsers,
+  login,
 } from '../controllers/userController.js'
 import protect from '../middleware/authMiddleware.js'
 
+router.route('/login')
+    .post(login)
 router.route('/')
-  .post(protect, createNewUser)
+  .post(createNewUser)
 router.route('/all/:pageNum')
   .get(protect, getAllUsers)
 router.route('/sorted/:filterKey/:direction/:numPerPage/:pageNum')

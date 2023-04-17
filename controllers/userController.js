@@ -1,7 +1,33 @@
 import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
-import MessageStat from "../models/messageStatModel.js";
 import AppError from "../utilis/appError.js";
+import jwt from "jsonwebtoken";
+
+// ******** Login ********
+
+// @desc    Login from user
+// @route   POST /api/users/login
+// @access  Public
+
+const login = asyncHandler(async (req, res, next) => {
+    try {
+        const {email, password} = req.body;
+        if (!email || !password) {
+            return next(new AppError('Invalid credentials', 401))
+        }
+        const user = await User.findOne({$or: [{email: email}, {username: email}]});
+        let id = user?._id;
+
+        if (password !== user.password) {
+            return next(new AppError('Invalid credentials', 401))
+        }
+
+        const token = jwt.sign({email, id}, process.env.JWT_SECRET)
+        res.status(200).json({user, token});
+    } catch (e) {
+        next(e);
+    }
+});
 
 // ******** CREATE ********
 
@@ -85,7 +111,7 @@ const getUserById = asyncHandler(async (req, res) => {
 // @route   PUT /api/users/update_user/:id
 // @access  Private
 const updateUser = asyncHandler(async (req, res, next) => {
-    const user = await MessageStat.findByIdAndUpdate(req.params.id, req.body, {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
     })
@@ -120,4 +146,5 @@ export {
     getSortedUsers,
     updateUser,
     deleteUser,
+    login
 }
