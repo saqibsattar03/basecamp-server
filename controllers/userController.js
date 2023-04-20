@@ -34,7 +34,11 @@ const login = asyncHandler(async (req, res, next) => {
 // @desc    Create a new user
 // @route   POST /api/users
 // @access  Private
-const createNewUser = asyncHandler(async (req, res) => {
+const createNewUser = asyncHandler(async (req, res, next) => {
+    if (await User.findOne({$or: [{username: req.body.username}, {email: req.body.email}]})) {
+        return next(new AppError('User with this email/username already exist!', 409))
+    }
+
     const user = await User.create(req.body)
 
     if (user) {
