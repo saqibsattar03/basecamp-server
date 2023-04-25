@@ -1,5 +1,0 @@
-steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '-t', 'gcr.io/oval-day-384201/basecamp-img', '.' ]
-  - name: 'gcr.io/cloud-builders/gcloud'
-    args: [ 'run', 'deploy', 'basecamp-server', '--image', 'gcr.io/oval-day-384201/basecamp-img', '--platform', 'managed', '--region', 'us-central1' ]
