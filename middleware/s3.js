@@ -25,7 +25,7 @@ export const uploadImage = (file, bucket) => {
                 return reject(err);
             }
 
-            return resolve(`https://${bucket}.s3-us-west-2.amazonaws.com/${fileName}`);
+            return resolve(`https://${bucket}.s3.us-east-2.amazonaws.com/${fileName}`);
         });
     });
 
