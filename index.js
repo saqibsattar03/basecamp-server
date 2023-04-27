@@ -1,15 +1,16 @@
-import express from 'express';
 import cors from 'cors';
+import express from 'express';
 import * as dotenv from 'dotenv'
 
 import connectDB from './config/db.js'
+import AppError from "./utilis/appError.js";
 import userRoutes from "./routes/userRoutes.js";
-import userFollowerRoutes from "./routes/userFollowerRoutes.js";
-import messageRoutes from "./routes/messageRoutes.js";
-import messageStatRoutes from "./routes/messageStatRoutes.js";
 import helpRoutes from "./routes/helpRoutes.js";
 import groupRoutes from "./routes/groupRoutes.js";
-import AppError from "./utilis/appError.js";
+import imageRouter from "./routes/imageRouter.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import messageStatRoutes from "./routes/messageStatRoutes.js";
+import userFollowerRoutes from "./routes/userFollowerRoutes.js";
 import {globalErrorHandler} from "./controllers/errorController.js";
 
 // ------------------------------
@@ -35,6 +36,7 @@ app.use('/messages', messageRoutes)
 app.use('/message-stats', messageStatRoutes)
 app.use('/helps', helpRoutes)
 app.use('/groups', groupRoutes)
+app.use('/images', imageRouter)
 
 // To deal all request whose URL is not specified in the server
 app.all('*', (req, res, next) => {
