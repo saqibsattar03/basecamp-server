@@ -16,6 +16,9 @@ const login = asyncHandler(async (req, res, next) => {
             return next(new AppError('Invalid credentials', 401))
         }
         const user = await User.findOne({$or: [{email: email}, {username: email}]});
+
+        if(!user) return next(new AppError(("User not found", 401)))
+
         let id = user?._id;
 
         if (password !== user.password) {
