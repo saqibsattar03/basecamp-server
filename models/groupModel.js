@@ -36,7 +36,8 @@ export const GroupSchema = mongoose.Schema({
 		default: 0
 	},
 	followers: [{
-		type: Array,
+		type: mongoose.Schema.Types.ObjectId,
+		ref: User
 	}],
 }, {
 	timestamps: true
