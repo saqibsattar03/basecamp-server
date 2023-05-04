@@ -34,6 +34,9 @@ export const UserSchema = mongoose.Schema({
 	bio: {
 		type: String,
 	},
+	verification_photos: [{
+		type: String,
+	}],
 	is_verified: {
 		type: Boolean,
 		required: true,
