@@ -21,6 +21,8 @@ export const HelpSchema = mongoose.Schema({
         ref: User,
         required: true,
     },
+}, {
+    timestamps: true
 });
 
 const Help = mongoose.model('Help', HelpSchema);

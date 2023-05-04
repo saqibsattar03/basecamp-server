@@ -42,6 +42,8 @@ export const MessageSchema = mongoose.Schema({
 		type: Number,
 		required: true,
 	},
+}, {
+	timestamps: true
 });
 
 const Message = mongoose.model('Message', MessageSchema);

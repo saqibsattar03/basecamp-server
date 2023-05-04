@@ -42,6 +42,8 @@ export const UserSchema = mongoose.Schema({
 	avatar: {
 		type: String,
 	},
+}, {
+	timestamps: true
 });
 UserSchema.methods.matchPassword = async function (enteredPassword) {
 

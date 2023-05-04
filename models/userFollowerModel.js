@@ -14,6 +14,8 @@ export const UserFollowerSchema = mongoose.Schema({
 		ref: User,
 		required: true,
 	},
+}, {
+	timestamps: true
 });
 
 const UserFollower = mongoose.model('UserFollower', UserFollowerSchema);
