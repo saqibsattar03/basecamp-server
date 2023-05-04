@@ -38,6 +38,8 @@ export const GroupSchema = mongoose.Schema({
 	followers: [{
 		type: Array,
 	}],
+}, {
+	timestamps: true
 });
 
 const Group = mongoose.model('Group', GroupSchema);
