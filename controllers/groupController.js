@@ -69,6 +69,39 @@ const getSortedGroups = asyncHandler(async (req, res) => {
 })
 
 
+// @desc    Get popular groups
+// @route   GET /api/groups/popular/:numPerPage/:pageNum
+// @access  Private/Admin
+const getPopularGroups = asyncHandler(async (req, res) => {
+    const pageNum = req.params.pageNum || 0;
+    const numPerPage = req.params.numPerPage || 25;
+
+    const results = await Group.aggregate([
+        {
+            $addFields: {
+                followers_count: { $size: "$followers" }
+            }
+        },
+        {
+            $sort: { followers_count: -1 }
+        },
+        {
+            $facet: {
+                metadata: [ { $count: "total" } ],
+                data: [ { $skip: numPerPage > 0 ? numPerPage * (pageNum - 1) : 0 }, { $limit: numPerPage } ]
+            }
+        },
+    ]);
+
+    const pagination = {
+        totalCount: results[0].metadata[0].total,
+        currentPage: pageNum
+    }
+
+    res.status(200).json({groups: results[0].data, pagination});
+})
+
+
 // @desc    Get group by ID
 // @route   GET /api/groups/:id
 // @access  Private
@@ -116,6 +149,7 @@ export {
     getGroupById,
     getAllGroups,
     getSortedGroups,
+    getPopularGroups,
     updateGroup,
     deleteGroup,
 }
