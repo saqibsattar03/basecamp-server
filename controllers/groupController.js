@@ -42,15 +42,26 @@ const getAllGroups = asyncHandler(async (req, res) => {
 })
 
 
-// @desc    Get sorted groups
-// @route   GET /api/groups/sorted/:filterKey/:direction/:numPerPage/:pageNum
+// @desc    Get filtered groups
+// @route   GET /api/groups/filter/:filterKey/:direction/:numPerPage/:pageNum?text=trip2023
 // @access  Private/Admin
-const getSortedGroups = asyncHandler(async (req, res) => {
+const getFilteredGroups = asyncHandler(async (req, res) => {
+    let query = {}
+    if (req.query.text) {
+        const searchRegex = new RegExp(req.query.text, 'i');
+        query = {
+            $or: [
+                {username: {$regex: searchRegex}},
+                {name: {$regex: searchRegex}},
+                {location: {$regex: searchRegex}},
+            ]
+        };
+    }
     const pageNum = req.params.pageNum || 0;
     const filterKey = req.params.filterKey || "createdAt";
     const direction = req.params.direction || "asc";
     const numPerPage = req.params.numPerPage || 25;
-    const groupCount = await Group.countDocuments({});
+    const groupCount = await Group.countDocuments(query);
 
     let sortQuery = {}
     sortQuery[filterKey] = direction // ex { title: "asc" }
@@ -60,7 +71,7 @@ const getSortedGroups = asyncHandler(async (req, res) => {
         currentPage: pageNum
     }
 
-    const groups = await Group.find({})
+    const groups = await Group.find(query)
         .sort(filterKey)
         .limit(numPerPage)
         .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
@@ -79,16 +90,16 @@ const getPopularGroups = asyncHandler(async (req, res) => {
     const results = await Group.aggregate([
         {
             $addFields: {
-                followers_count: { $size: "$followers" }
+                followers_count: {$size: "$followers"}
             }
         },
         {
-            $sort: { followers_count: -1 }
+            $sort: {followers_count: -1}
         },
         {
             $facet: {
-                metadata: [ { $count: "total" } ],
-                data: [ { $skip: numPerPage > 0 ? numPerPage * (pageNum - 1) : 0 }, { $limit: numPerPage } ]
+                metadata: [{$count: "total"}],
+                data: [{$skip: numPerPage > 0 ? numPerPage * (pageNum - 1) : 0}, {$limit: numPerPage}]
             }
         },
     ]);
@@ -148,7 +159,7 @@ export {
     createNewGroup,
     getGroupById,
     getAllGroups,
-    getSortedGroups,
+    getFilteredGroups,
     getPopularGroups,
     updateGroup,
     deleteGroup,
