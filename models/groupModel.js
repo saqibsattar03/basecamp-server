@@ -6,10 +6,12 @@ import User from './userModel.js';
 export const GroupSchema = mongoose.Schema({
 	name: {
 		type: String,
+		index: true,
 		required: true,
 	},
 	location: {
 		type: String,
+		index: { sparse: true },
 	},
 	date: {
 		type: Date,
