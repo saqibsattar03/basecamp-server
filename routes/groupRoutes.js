@@ -6,7 +6,7 @@ import {
   deleteGroup,
   getGroupById,
   updateGroup,
-  getSortedGroups,
+  getSortedGroups, getPopularGroups,
 } from '../controllers/groupController.js'
 import protect from '../middleware/authMiddleware.js'
 
@@ -16,6 +16,8 @@ router.route('/all/:pageNum')
   .get(protect, getAllGroups)
 router.route('/sorted/:filterKey/:direction/:numPerPage/:pageNum')
     .get(protect, getSortedGroups)
+router.route('/popular/:numPerPage/:pageNum')
+    .get(protect, getPopularGroups)
 router.route('/:id')
   .get(protect, getGroupById)
 router.route('/:id')
