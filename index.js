@@ -1,8 +1,9 @@
-import cors from 'cors';
 import express from 'express';
-import dotenv from 'dotenv'
-import connectDB from './config/db.js'
-import fileUpload from 'express-fileupload';
+import cors from 'cors';
+import * as dotenv from 'dotenv'
+import fileUpload from 'express-fileupload'
+
+import {globalErrorHandler} from "./controllers/errorController.js";
 import AppError from "./utilis/appError.js";
 import userRoutes from "./routes/userRoutes.js";
 import helpRoutes from "./routes/helpRoutes.js";
@@ -11,7 +12,8 @@ import imageRouter from "./routes/imageRouter.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import messageStatRoutes from "./routes/messageStatRoutes.js";
 import userFollowerRoutes from "./routes/userFollowerRoutes.js";
-import {globalErrorHandler} from "./controllers/errorController.js";
+
+import connectDB from './config/db.js'
 
 // ------------------------------
 // Init Express App
