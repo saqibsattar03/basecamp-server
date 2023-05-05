@@ -1,8 +1,8 @@
 import cors from 'cors';
 import express from 'express';
-import * as dotenv from 'dotenv'
-
+import dotenv from 'dotenv'
 import connectDB from './config/db.js'
+import fileUpload from 'express-fileupload';
 import AppError from "./utilis/appError.js";
 import userRoutes from "./routes/userRoutes.js";
 import helpRoutes from "./routes/helpRoutes.js";
@@ -16,12 +16,13 @@ import {globalErrorHandler} from "./controllers/errorController.js";
 // ------------------------------
 // Init Express App
 // ------------------------------
-dotenv.config();  // Load ENV
+dotenv.config(); // Load ENV
 connectDB().then() // connect DB
 const app = express();
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({extended: true})); // For parsing application/x-www-form-urlencoded
 app.use(cors());
+app.use(fileUpload())
 
 // ------------------------------
 // routes
@@ -49,6 +50,7 @@ app.use(globalErrorHandler);
 // Listen at port 8080
 // ------------------------------
 const port = parseInt(process.env.PORT) || 8080;
+
 app.listen(port, () => {
     console.log(`Basecamp API listening on port ${port}`);
 });
