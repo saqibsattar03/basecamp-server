@@ -18,32 +18,8 @@ const createNewGroup = asyncHandler(async (req, res) => {
     }
 })
 
-// ******** READ ********
-
-// @desc    Get all groups
-// @route   GET /api/groups/:page
-// @access  Private/Admin
-const getAllGroups = asyncHandler(async (req, res) => {
-    const resultsPerPage = 50;
-    const page = req.params.page || 0;
-    const groupCount = await Group.countDocuments({})
-
-    const pagination = {
-        totalCount: groupCount,
-        currentPage: page
-    }
-
-    const groups = await Group.find({})
-        .sort({createdAt: "asc"})
-        .limit(resultsPerPage)
-        .skip(resultsPerPage > 0 ? resultsPerPage * (page - 1) : 0)
-
-    res.status(200).json({groups, pagination});
-})
-
-
 // @desc    Get filtered groups
-// @route   GET /api/groups/filter/:filterKey/:direction/:numPerPage/:pageNum?text=trip2023
+// @route   GET /api/groups/filter?text=trip2023&pageNum=0&numPerPage=20&filterKey=createdAt&direction=asc
 // @access  Private/Admin
 const getFilteredGroups = asyncHandler(async (req, res) => {
     let query = {}
@@ -57,10 +33,10 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
             ]
         };
     }
-    const pageNum = req.params.pageNum || 0;
-    const filterKey = req.params.filterKey || "createdAt";
-    const direction = req.params.direction || "asc";
-    const numPerPage = req.params.numPerPage || 25;
+    const pageNum = req.query.pageNum || 0;
+    const filterKey = req.query.filterKey || "createdAt";
+    const direction = req.query.direction || "asc";
+    const numPerPage = req.query.numPerPage || 25;
     const groupCount = await Group.countDocuments(query);
 
     let sortQuery = {}
@@ -81,11 +57,11 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
 
 
 // @desc    Get popular groups
-// @route   GET /api/groups/popular/:numPerPage/:pageNum
+// @route   GET /api/groups/popular?numPerPage=10&pageNum=0
 // @access  Private/Admin
 const getPopularGroups = asyncHandler(async (req, res) => {
-    const pageNum = req.params.pageNum || 0;
-    const numPerPage = req.params.numPerPage || 25;
+    const pageNum = req.query.pageNum || 0;
+    const numPerPage = req.query.numPerPage || 25;
 
     const results = await Group.aggregate([
         {
@@ -158,7 +134,6 @@ const deleteGroup = asyncHandler(async (req, res, next) => {
 export {
     createNewGroup,
     getGroupById,
-    getAllGroups,
     getFilteredGroups,
     getPopularGroups,
     updateGroup,

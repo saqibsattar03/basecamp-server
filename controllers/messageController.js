@@ -18,49 +18,32 @@ const createNewMessage = asyncHandler(async (req, res) => {
   }
 })
 
-// ******** READ ********
 
-// @desc    Get all messages
-// @route   GET /api/messages/:page
+// @desc    Get filtered messages
+// @route   GET /api/messages/filter?numPerPage=20&pageNum=0&filterKey=createdAt&direction=asc&groupId=1234
 // @access  Private/Admin
-const getAllMessages = asyncHandler(async (req, res) => {
-  const resultsPerPage = 50;
-  const page = req.params.page || 0;
-  const messageCount = await Message.countDocuments({})
+const getFilteredMessages = asyncHandler(async (req, res) => {
+  const pageNum = req.query.pageNum || 0;
+  const filterKey = req.query.filterKey || "createdAt";
+  const direction = req.query.direction || "asc";
+  const numPerPage = req.query.numPerPage || 25;
 
-  const pagination = {
-    totalCount: messageCount,
-    currentPage: page
+  let query = {}
+  if (req.query.groupId) {
+    query["group_id"] = req.query.groupId;
   }
-
-  const messages = await Message.find({})
-      .sort({createdAt: "asc"})
-      .limit(resultsPerPage)
-      .skip(resultsPerPage > 0 ? resultsPerPage * (page - 1) : 0)
-
-  res.status(200).json({messages, pagination});
-})
-
-
-// @desc    Get sorted messages
-// @route   GET /api/messages/sorted/:filterKey/:direction/:numPerPage/:pageNum
-// @access  Private/Admin
-const getSortedMessages = asyncHandler(async (req, res) => {
-  const pageNum = req.params.pageNum || 0;
-  const filterKey = req.params.filterKey || "createdAt";
-  const direction = req.params.direction || "asc";
-  const numPerPage = req.params.numPerPage || 25;
-  const messageCount = await Message.countDocuments({});
 
   let sortQuery = {}
   sortQuery[filterKey] = direction // ex { title: "asc" }
+
+  const messageCount = await Message.countDocuments(query);
 
   const pagination = {
     totalCount: messageCount,
     currentPage: pageNum
   }
 
-  const messages = await Message.find({})
+  const messages = await Message.find(query)
       .sort(filterKey)
       .limit(numPerPage)
       .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
@@ -116,8 +99,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
 export {
   createNewMessage,
   getMessageById,
-  getAllMessages,
-  getSortedMessages,
+  getFilteredMessages,
   updateMessage,
   deleteMessage,
 }
