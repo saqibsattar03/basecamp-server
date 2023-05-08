@@ -3,7 +3,6 @@ import express from 'express'
 const router = express.Router()
 import {
     createNewGroup,
-    getAllGroups,
     deleteGroup,
     getGroupById,
     updateGroup,
@@ -14,11 +13,9 @@ import protect from '../middleware/authMiddleware.js'
 
 router.route('/')
     .post(protect, createNewGroup)
-router.route('/all/:pageNum')
-    .get(protect, getAllGroups)
-router.route('/filter/:filterKey/:direction/:numPerPage/:pageNum')
+router.route('/filter')
     .get(protect, getFilteredGroups)
-router.route('/popular/:numPerPage/:pageNum')
+router.route('/popular')
     .get(protect, getPopularGroups)
 router.route('/:id')
     .get(protect, getGroupById)
