@@ -11,10 +11,13 @@ import jwt from "jsonwebtoken";
 
 const login = asyncHandler(async (req, res, next) => {
     try {
-        const {email, password} = req.body;
+        let {email, password} = req.body;
         if (!email || !password) {
             return next(new AppError('Invalid credentials', 401))
         }
+
+        email = email.toString().toLowerCase()
+
         const user = await User.findOne({$or: [{email: email}, {username: email}]}).select('password');
         if(!user) return next(new AppError('User not found', 400))
 
@@ -37,7 +40,7 @@ const login = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private
 const createNewUser = asyncHandler(async (req, res, next) => {
-    if (await User.findOne({$or: [{username: req.body.username}, {email: req.body.email}]})) {
+    if (await User.findOne({$or: [{username: req.body.username.toString().toLowerCase()}, {email: req.body.email.toString().toLowerCase()}]})) {
         return next(new AppError('User with this email/username already exist!', 409))
     }
 
