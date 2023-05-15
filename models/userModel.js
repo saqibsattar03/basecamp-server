@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-
+import bcrypt from "bcrypt";
 export const UserSchema = mongoose.Schema({
 	first_name: {
 		type: String,
@@ -42,6 +42,22 @@ export const UserSchema = mongoose.Schema({
 	avatar: {
 		type: String,
 	},
+});
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+
+//console.log(enteredPassword)
+    if (enteredPassword)
+        return await bcrypt.compare(enteredPassword, this.password);
+};
+
+UserSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        next();
+    }
+    if (this.password) {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+    }
 });
 
 const User = mongoose.model('User', UserSchema);

@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 // @route   POST /api/users/login
 // @access  Public
 
+
 const login = asyncHandler(async (req, res, next) => {
     try {
         const {email, password} = req.body;
@@ -18,12 +19,16 @@ const login = asyncHandler(async (req, res, next) => {
         const user = await User.findOne({$or: [{email: email}, {username: email}]});
         let id = user?._id;
 
-        if (password !== user.password) {
-            return next(new AppError('Invalid credentials', 401))
-        }
+      const passwordMatch = await user.matchPassword(password);
+
+    if(passwordMatch && user){
 
         const token = jwt.sign({email, id}, process.env.JWT_SECRET)
         res.status(200).json({user, token});
+}
+else{
+ return next(new AppError('Invalid credentials', 401))}
+
     } catch (e) {
         next(e);
     }
@@ -35,11 +40,14 @@ const login = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private
 const createNewUser = asyncHandler(async (req, res, next) => {
-    if (await User.findOne({$or: [{username: req.body.username}, {email: req.body.email}]})) {
-        return next(new AppError('User with this email/username already exist!', 409))
-    }
 
-    const user = await User.create(req.body)
+
+const { username, email, password } = req.body;
+    if (await User.findOne({ $or: [{ username: username }, { email: email }] })) {
+       return next(new AppError('User with this email/username already exists!', 409));
+     }
+
+     const user = await User.create(req.body);
 
     if (user) {
         res.status(201).json(user)
