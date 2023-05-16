@@ -19,20 +19,20 @@ const login = asyncHandler(async (req, res, next) => {
         email = email.toString().toLowerCase()
 
         const user = await User.findOne({$or: [{email: email}, {username: email}]}).select('password');
-        if(!user) return next(new AppError('User not found', 400))
+        if (!user) return next(new AppError('User not found', 400))
 
         let id = user?._id;
 
         const passwordMatch = await user.matchPassword(password);
 
-        if(passwordMatch && user){
+        if (passwordMatch && user) {
             const token = jwt.sign({email, id}, process.env.JWT_SECRET)
             res.status(200).json({user, token});
-        } else{
-            return next(new AppError('Invalid credentials', 401))}
+        } else {
+            return next(new AppError('Invalid credentials', 401))
         }
-    catch (e) {
-      next(e);
+    } catch (e) {
+        next(e);
     }
 });
 
@@ -42,14 +42,14 @@ const login = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private
 const createNewUser = asyncHandler(async (req, res, next) => {
+    let {username, email, password} = req.body;
+    username = username.toString().toLowerCase()
+    email = email.toString().toLowerCase()
+    if (await User.findOne({$or: [{username: username}, {email: email}]})) {
+        return next(new AppError('User with this email/username already exists!', 409));
+    }
 
-
-const { username, email, password } = req.body;
-    if (await User.findOne({ $or: [{ username: username.toString().toLowerCase() }, { email: email.toString().toLowerCase() }] })) {
-       return next(new AppError('User with this email/username already exists!', 409));
-     }
-
-     const user = await User.create(req.body);
+    const user = await User.create(req.body);
 
     if (user) {
         res.status(201).json(user)
