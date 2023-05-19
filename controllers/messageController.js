@@ -8,6 +8,7 @@ import AppError from "../utilis/appError.js";
 // @route   POST /api/messages
 // @access  Private
 const createNewMessage = asyncHandler(async (req, res) => {
+  console.log(req.body)
   const message = await Message.create(req.body)
 
   if (message) {
@@ -23,6 +24,7 @@ const createNewMessage = asyncHandler(async (req, res) => {
 // @route   GET /api/messages/filter?numPerPage=20&pageNum=0&filterKey=createdAt&direction=asc&groupId=1234
 // @access  Private/Admin
 const getFilteredMessages = asyncHandler(async (req, res) => {
+
   const pageNum = req.query.pageNum || 0;
   const filterKey = req.query.filterKey || "createdAt";
   const direction = req.query.direction || "asc";
@@ -32,6 +34,24 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
   if (req.query.groupId) {
     query["group_id"] = req.query.groupId;
   }
+
+  if (req.query.parentId) {
+    query["parent_id"] = req.query.parentId;
+  }
+
+
+
+  if (req.query.type) {
+    if (req.query.type == 0) {
+      query["parent_id"] = null
+    }
+
+    query["type"] = req.query.type;
+
+
+  }
+
+
 
   let sortQuery = {}
   sortQuery[filterKey] = direction // ex { title: "asc" }
@@ -44,11 +64,11 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
   }
 
   const messages = await Message.find(query)
-      .sort(filterKey)
-      .limit(numPerPage)
-      .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
+    .sort(sortQuery)
+    .limit(numPerPage).populate('created_by')
+    .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
 
-  res.status(200).json({messages, pagination});
+  res.status(200).json({ messages, pagination });
 })
 
 
@@ -92,7 +112,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
     return next(new AppError('No document found with that ID', 404));
   }
 
-  res.status(200).json({message: 'Message removed'});
+  res.status(200).json({ message: 'Message removed' });
 })
 
 

@@ -11,14 +11,14 @@ import jwt from "jsonwebtoken";
 
 const login = asyncHandler(async (req, res, next) => {
     try {
-        let {email, password} = req.body;
+        let { email, password } = req.body;
         if (!email || !password) {
             return next(new AppError('Invalid credentials', 401))
         }
 
         email = email.toString().toLowerCase()
 
-        const user = await User.findOne({$or: [{email: email}, {username: email}]}).select('password');
+        const user = await User.findOne({ $or: [{ email: email }, { username: email }] });
         if (!user) return next(new AppError('User not found', 400))
 
         let id = user?._id;
@@ -26,8 +26,8 @@ const login = asyncHandler(async (req, res, next) => {
         const passwordMatch = await user.matchPassword(password);
 
         if (passwordMatch && user) {
-            const token = jwt.sign({email, id}, process.env.JWT_SECRET)
-            res.status(200).json({user, token});
+            const token = jwt.sign({ email, id }, process.env.JWT_SECRET)
+            res.status(200).json({ user: user, token });
         } else {
             return next(new AppError('Invalid credentials', 401))
         }
@@ -42,10 +42,10 @@ const login = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private
 const createNewUser = asyncHandler(async (req, res, next) => {
-    let {username, email, password} = req.body;
+    let { username, email, password } = req.body;
     username = username.toString().toLowerCase()
     email = email.toString().toLowerCase()
-    if (await User.findOne({$or: [{username: username}, {email: email}]})) {
+    if (await User.findOne({ $or: [{ username: username }, { email: email }] })) {
         return next(new AppError('User with this email/username already exists!', 409));
     }
 
@@ -75,11 +75,11 @@ const getAllUsers = asyncHandler(async (req, res) => {
     }
 
     const users = await User.find({})
-        .sort({createdAt: "asc"})
+        .sort({ createdAt: "asc" })
         .limit(resultsPerPage)
         .skip(resultsPerPage > 0 ? resultsPerPage * (page - 1) : 0)
 
-    res.status(200).json({users, pagination});
+    res.status(200).json({ users, pagination });
 })
 
 
@@ -106,7 +106,7 @@ const getSortedUsers = asyncHandler(async (req, res) => {
         .limit(numPerPage)
         .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
 
-    res.status(200).json({users, pagination});
+    res.status(200).json({ users, pagination });
 })
 
 
@@ -149,7 +149,7 @@ const deleteUser = asyncHandler(async (req, res, next) => {
         return next(new AppError('No document found with that ID', 404));
     }
 
-    res.status(200).json({message: 'User removed'});
+    res.status(200).json({ message: 'User removed' });
 })
 
 
