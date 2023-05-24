@@ -8,7 +8,6 @@ import AppError from "../utilis/appError.js";
 // @route   POST /api/messages
 // @access  Private
 const createNewMessage = asyncHandler(async (req, res) => {
-  console.log(req.body)
   const message = await Message.create(req.body)
 
   if (message) {
@@ -106,6 +105,10 @@ const updateMessage = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/messages/:id
 // @access  Private
 const deleteMessage = asyncHandler(async (req, res) => {
+
+
+  
+
   const message = await Message.findByIdAndDelete(req.params.id)
 
   if (!message) {

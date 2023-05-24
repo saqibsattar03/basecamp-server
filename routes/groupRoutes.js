@@ -5,7 +5,9 @@ import {
     createNewGroup,
     deleteGroup,
     getGroupById,
+    getMyGroups,
     updateGroup,
+    updateGroupFollowers,
     getFilteredGroups,
     getPopularGroups,
 } from '../controllers/groupController.js'
@@ -21,7 +23,12 @@ router.route('/:id')
     .get(protect, getGroupById)
 router.route('/:id')
     .put(protect, updateGroup)
+router.route('/updateFollowers/:id').put(protect, updateGroupFollowers);
+router.route('/myGroups/filter').get(protect, getMyGroups);
+
 router.route('/:id')
     .delete(protect, deleteGroup)
+
+
 
 export default router
