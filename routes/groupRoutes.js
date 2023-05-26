@@ -22,7 +22,7 @@ router.route('/popular')
 router.route('/:id')
     .get(protect, getGroupById)
 router.route('/:id')
-    .put(protect, updateGroup)
+    .patch(protect, updateGroup)
 router.route('/updateFollowers/:id').put(protect, updateGroupFollowers);
 router.route('/myGroups/filter').get(protect, getMyGroups);
 
