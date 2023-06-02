@@ -1,27 +1,38 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-import User from './userModel.js';
-import Group from './groupModel.js';
+import User from "./userModel.js";
+import Group from "./groupModel.js";
 
+export const MessageStatSchema = mongoose.Schema(
+  {
+    message_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: Group,
+      required: true,
+    },
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: User,
+      required: true,
+    },
+    is_liked: {
+      type: Boolean,
+      default: false,
+    },
 
-export const MessageStatSchema = mongoose.Schema({
-	message_id: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: Group,
-		required: true,
-	},
-	user_id: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: User,
-		required: true,
-	},
-	type: {
-		type: Number,
-		required: true,
-	},
-}, {
-	timestamps: true
-});
+    is_disliked: {
+      type: Boolean,
+      default: false,
+    },
+    is_fav: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const MessageStat = mongoose.model('MessageStat', MessageStatSchema);
+const MessageStat = mongoose.model("MessageStat", MessageStatSchema);
 export default MessageStat;

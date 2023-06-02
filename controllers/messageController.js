@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Message from "../models/messageModel.js";
 import AppError from "../utilis/appError.js";
+import MessageStat from "../models/messageStatModel.js";
 
 // ******** CREATE ********
 
@@ -28,6 +29,7 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
   const numPerPage = req.query.numPerPage || 25;
 
   let query = {};
+  const loggedUserId = req.user._id;
 
   if (req.query.userId) {
     query["created_by"] = req.query.userId;
@@ -63,6 +65,26 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
     .limit(numPerPage)
     .populate("created_by")
     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
+
+
+
+  const messageIds = messages.map((message) => message._id);
+
+  const messageStats = await MessageStat.find({
+    message_id: { $in: messageIds },
+    user_id: loggedUserId,
+  });
+
+  messageStats.forEach((messageStat) => {
+    for (var i = 0; i < messages.length; ++i) {
+      if (messages[i]._id.toString() == messageStat.message_id.toString()) {
+        messages[i]._doc.is_liked = messageStat.is_liked;
+        messages[i]._doc.is_disliked = messageStat.is_disliked;
+        messages[i]._doc.is_fav = messageStat.is_fav;
+        break;
+      }
+    }
+  });
 
   res.status(200).json({ messages, pagination });
 });

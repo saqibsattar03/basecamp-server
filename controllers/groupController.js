@@ -88,7 +88,7 @@ const getMyGroups = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const getPopularGroups = asyncHandler(async (req, res) => {
   const pageNum = req.query.pageNum || 0;
-  const numPerPage = req.query.numPerPage || 25;
+  const numPerPage = parseInt(req.query.numPerPage) || 25;
 
   const results = await Group.aggregate([
     {

@@ -42,6 +42,24 @@ export const MessageSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+
+    like_count: {
+      type: Number,
+    },
+    dislike_count: {
+      type: Number,
+      default: 0,
+    },
+
+    fav_count: {
+      type: Number,
+      default: 0,
+      
+    },
+    like_count: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
