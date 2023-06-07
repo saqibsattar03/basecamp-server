@@ -2,12 +2,14 @@ import mongoose from "mongoose";
 
 import User from "./userModel.js";
 import Group from "./groupModel.js";
+import Message from "./messageModel.js";
 
 export const MessageStatSchema = mongoose.Schema(
   {
     message_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: Group,
+      ref: Message,
+      //  ref: Group,
       required: true,
     },
     user_id: {

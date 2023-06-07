@@ -65,16 +65,14 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
     .limit(numPerPage)
     .populate("created_by")
     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
-  // console.log(messages.length);
 
   const messageIds = messages.map((message) => message._id);
 
   const messageStats = await MessageStat.find({
     message_id: { $in: messageIds },
     user_id: loggedUserId,
-  });
 
-  console.log(messageStats.length);
+  });
 
   messageStats.forEach((messageStat) => {
     for (var i = 0; i < messages.length; ++i) {
@@ -87,11 +85,17 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
       }
     }
   });
-  console.log(messages.length);
   res.status(200).json({ messages, pagination });
 });
 
 ////////
+
+
+
+
+
+
+
 
 const getMyGroupsMessages = asyncHandler(async (req, res) => {
   const pageNum = req.query.pageNum || 0;
@@ -107,6 +111,7 @@ const getMyGroupsMessages = asyncHandler(async (req, res) => {
   const groupQuery = {
     _id: { $in: allGroupIds },
     followers: loggedUserId,
+
   };
 
   const groupsWithUser = await Group.find(groupQuery);
@@ -179,4 +184,5 @@ export {
   updateMessage,
   deleteMessage,
   getMyGroupsMessages,
+ 
 };

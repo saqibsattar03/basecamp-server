@@ -216,7 +216,47 @@ const deleteMessageStat = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ message: "MessageStat removed" });
 });
+//
+//////////
+const getSavedMessages = asyncHandler(async (req, res) => {
+  const pageNum = req.query.pageNum || 0;
+  const numPerPage = req.query.numPerPage || 25;
 
+  const loggedUserId = req.user._id;
+
+  const messageStats = await MessageStat.find(
+    {
+      is_fav: true,
+      user_id: loggedUserId,
+    },
+    { message_id: 1 }
+  )
+    .populate({
+      path: "message_id",
+      populate: {
+        path: "created_by",
+        model: "User",
+      },
+    })
+    .sort({ createdAt: "asc" })
+    .limit(numPerPage)
+    .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
+    .lean();
+
+  const messageStatCount = messageStats.length;
+
+  const pagination = {
+    totalCount: messageStatCount,
+    currentPage: pageNum,
+  };
+
+  res.status(200).json({
+    messages: messageStats.map(({ message_id }) => message_id),
+    pagination,
+  });
+});
+
+////////////////
 export {
   createNewMessageStat,
   getMessageStatById,
@@ -224,4 +264,5 @@ export {
   getSortedMessageStats,
   updateMessageStat,
   deleteMessageStat,
+  getSavedMessages,
 };
