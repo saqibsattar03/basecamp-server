@@ -56,6 +56,8 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
   res.status(200).json({ groups, pagination });
 });
 
+////
+
 const getMyGroups = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   console.log(userId);
@@ -90,7 +92,23 @@ const getPopularGroups = asyncHandler(async (req, res) => {
   const pageNum = req.query.pageNum || 0;
   const numPerPage = parseInt(req.query.numPerPage) || 25;
 
+  let query = {};
+
+  if (req.query.text) {
+    const searchRegex = new RegExp(req.query.text, "i");
+    query = {
+      $or: [
+        { username: { $regex: searchRegex } },
+        { name: { $regex: searchRegex } },
+        { location: { $regex: searchRegex } },
+      ],
+    };
+  }
+
   const results = await Group.aggregate([
+    {
+      $match: query,
+    },
     {
       $addFields: {
         followers_count: { $size: "$followers" },
@@ -110,12 +128,25 @@ const getPopularGroups = asyncHandler(async (req, res) => {
     },
   ]);
 
-  const pagination = {
-    totalCount: results[0].metadata[0].total,
-    currentPage: pageNum,
-  };
+  if (
+    results.length > 0 &&
+    results[0].metadata &&
+    results[0].metadata.length > 0
+  ) {
+    const totalCount = results[0].metadata[0].total;
+    const groups = results[0].data;
 
-  res.status(200).json({ groups: results[0].data, pagination });
+    const pagination = {
+      totalCount,
+      currentPage: pageNum,
+    };
+
+    res.status(200).json({ groups, pagination });
+  } else {
+    res
+      .status(200)
+      .json({ groups: [], pagination: { totalCount: 0, currentPage: 0 } });
+  }
 });
 
 // @desc    Get group by ID

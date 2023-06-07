@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import Message from "../models/messageModel.js";
 import AppError from "../utilis/appError.js";
 import MessageStat from "../models/messageStatModel.js";
+import Group from "../models/groupModel.js";
 
 // ******** CREATE ********
 
@@ -27,10 +28,9 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
   const filterKey = req.query.filterKey || "createdAt";
   const direction = req.query.direction || "asc";
   const numPerPage = req.query.numPerPage || 25;
-
   let query = {};
   const loggedUserId = req.user._id;
-
+  console.log(loggedUserId);
   if (req.query.userId) {
     query["created_by"] = req.query.userId;
   }
@@ -51,7 +51,7 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
   }
 
   let sortQuery = {};
-  sortQuery[filterKey] = direction; // ex { title: "asc" }
+  sortQuery[filterKey] = direction;
 
   const messageCount = await Message.countDocuments(query);
 
@@ -65,8 +65,7 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
     .limit(numPerPage)
     .populate("created_by")
     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
-
-
+  // console.log(messages.length);
 
   const messageIds = messages.map((message) => message._id);
 
@@ -75,18 +74,59 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
     user_id: loggedUserId,
   });
 
+  console.log(messageStats.length);
+
   messageStats.forEach((messageStat) => {
     for (var i = 0; i < messages.length; ++i) {
       if (messages[i]._id.toString() == messageStat.message_id.toString()) {
         messages[i]._doc.is_liked = messageStat.is_liked;
         messages[i]._doc.is_disliked = messageStat.is_disliked;
+
         messages[i]._doc.is_fav = messageStat.is_fav;
         break;
       }
     }
   });
-
+  console.log(messages.length);
   res.status(200).json({ messages, pagination });
+});
+
+////////
+
+const getMyGroupsMessages = asyncHandler(async (req, res) => {
+  const pageNum = req.query.pageNum || 0;
+  const numPerPage = req.query.numPerPage || 25;
+
+  const loggedUserId = req.user._id;
+  const messages = await Message.find()
+    .limit(numPerPage)
+    .populate("created_by")
+    .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
+
+  const allGroupIds = messages.map((message) => message.group_id);
+  const groupQuery = {
+    _id: { $in: allGroupIds },
+    followers: loggedUserId,
+  };
+
+  const groupsWithUser = await Group.find(groupQuery);
+  const myGroupsIds = groupsWithUser.map((group) => group._id.toString());
+
+  const filteredMessages = messages.filter((message) =>
+    myGroupsIds.includes(message.group_id.toString())
+  );
+  const filteredMessageIds = filteredMessages.map((message) => message._id);
+
+  const messageCount = await Message.countDocuments({
+    _id: { $in: filteredMessageIds },
+  });
+
+  const pagination = {
+    totalCount: messageCount,
+    currentPage: pageNum,
+  };
+
+  res.status(200).json({ messages: filteredMessages, pagination });
 });
 
 // @desc    Get message by ID
@@ -138,4 +178,5 @@ export {
   getFilteredMessages,
   updateMessage,
   deleteMessage,
+  getMyGroupsMessages,
 };
