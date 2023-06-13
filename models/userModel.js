@@ -32,6 +32,7 @@ export const UserSchema = mongoose.Schema({
 		required: true,
 	},
 	bio: {
+
 		type: String,
 	},
 	verification_photos: [{
