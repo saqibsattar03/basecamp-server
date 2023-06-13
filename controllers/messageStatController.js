@@ -222,7 +222,7 @@ const getSavedMessages = asyncHandler(async (req, res) => {
   const pageNum = req.query.pageNum || 0;
   const numPerPage = req.query.numPerPage || 25;
 
-  const loggedUserId = req.user._id;
+  const loggedUserId = req.query.userId;
 
   const messageStats = await MessageStat.find(
     {
