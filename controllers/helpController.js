@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler'
 import Help from '../models/helpModel.js'
-import AppError from "../utilis/appError.js";
+import AppError from '../utilis/appError.js'
 
 // ******** CREATE ********
 
@@ -24,8 +24,8 @@ const createNewHelp = asyncHandler(async (req, res) => {
 // @route   GET /api/help/:page
 // @access  Private/Admin
 const getAllHelp = asyncHandler(async (req, res) => {
-  const resultsPerPage = 50;
-  const page = req.params.page || 0;
+  const resultsPerPage = 50
+  const page = req.params.page || 0
   const helpCount = await Help.countDocuments({})
 
   const pagination = {
@@ -34,25 +34,24 @@ const getAllHelp = asyncHandler(async (req, res) => {
   }
 
   const help = await Help.find({})
-      .sort({createdAt: "asc"})
-      .limit(resultsPerPage)
-      .skip(resultsPerPage > 0 ? resultsPerPage * (page - 1) : 0)
+    .sort({ createdAt: 'asc' })
+    .limit(resultsPerPage)
+    .skip(resultsPerPage > 0 ? resultsPerPage * (page - 1) : 0)
 
-  res.status(200).json({help, pagination});
+  res.status(200).json({ help, pagination })
 })
-
 
 // @desc    Get sorted help
 // @route   GET /api/help/sorted/:filterKey/:direction/:numPerPage/:pageNum
 // @access  Private/Admin
 const getSortedHelp = asyncHandler(async (req, res) => {
-  const pageNum = req.params.pageNum || 0;
-  const filterKey = req.params.filterKey || "createdAt";
-  const direction = req.params.direction || "asc";
-  const numPerPage = req.params.numPerPage || 25;
-  const helpCount = await Help.countDocuments({});
+  const pageNum = req.params.pageNum || 0
+  const filterKey = req.params.filterKey || 'createdAt'
+  const direction = req.params.direction || 'asc'
+  const numPerPage = req.params.numPerPage || 25
+  const helpCount = await Help.countDocuments({})
 
-  let sortQuery = {}
+  const sortQuery = {}
   sortQuery[filterKey] = direction // ex { title: "asc" }
 
   const pagination = {
@@ -61,13 +60,12 @@ const getSortedHelp = asyncHandler(async (req, res) => {
   }
 
   const help = await Help.find({})
-      .sort(filterKey)
-      .limit(numPerPage)
-      .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
+    .sort(filterKey)
+    .limit(numPerPage)
+    .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
 
-  res.status(200).json({help, pagination});
+  res.status(200).json({ help, pagination })
 })
-
 
 // @desc    Get help by ID
 // @route   GET /api/help/:id
@@ -75,7 +73,7 @@ const getSortedHelp = asyncHandler(async (req, res) => {
 const getHelpById = asyncHandler(async (req, res) => {
   const help = await Help.findById(req.params.id)
 
-  res.status(200).json(help);
+  res.status(200).json(help)
 })
 
 // ******** UPDATE ********
@@ -88,7 +86,7 @@ const updateHelp = asyncHandler(async (req, res, next) => {
 
   // If we don't find the message, throw an error.
   if (!help) {
-    return next(new AppError('No document found with that ID', 404));
+    return next(new AppError('No document found with that ID', 404))
   }
 
   res.status(200).json(help)
@@ -104,12 +102,11 @@ const deleteHelp = asyncHandler(async (req, res, next) => {
 
   // If we don't find the message, throw an error.
   if (!help) {
-    return next(new AppError('No document found with that ID', 404));
+    return next(new AppError('No document found with that ID', 404))
   }
 
   res.status(200).json(help)
 })
-
 
 export {
   createNewHelp,
@@ -117,5 +114,5 @@ export {
   getAllHelp,
   getSortedHelp,
   updateHelp,
-  deleteHelp,
+  deleteHelp
 }

@@ -1,5 +1,4 @@
-import express from "express";
-const router = express.Router();
+import express from 'express'
 import {
   createNewMessageStat,
   getAllMessageStats,
@@ -7,20 +6,21 @@ import {
   getMessageStatById,
   updateMessageStat,
   getSortedMessageStats,
-  getSavedMessages,
-} from "../controllers/messageStatController.js";
-import protect from "../middleware/authMiddleware.js";
+  getSavedMessages
+} from '../controllers/messageStatController.js'
+import protect from '../middleware/authMiddleware.js'
+const router = express.Router()
 
-router.route("/").post(protect, createNewMessageStat);
-router.route("/all/:pageNum").get(protect, getAllMessageStats);
+router.route('/').post(protect, createNewMessageStat)
+router.route('/all/:pageNum').get(protect, getAllMessageStats)
 router
-  .route("/sorted/:filterKey/:direction/:numPerPage/:pageNum")
+  .route('/sorted/:filterKey/:direction/:numPerPage/:pageNum')
 
-  .get(protect, getSortedMessageStats);
+  .get(protect, getSortedMessageStats)
 
-router.route("/saved").get(protect, getSavedMessages);
-router.route("/:id").get(protect, getMessageStatById);
-router.route("/:id").put(protect, updateMessageStat);
-router.route("/:id").delete(protect, deleteMessageStat);
+router.route('/saved').get(protect, getSavedMessages)
+router.route('/:id').get(protect, getMessageStatById)
+router.route('/:id').put(protect, updateMessageStat)
+router.route('/:id').delete(protect, deleteMessageStat)
 
-export default router;
+export default router
