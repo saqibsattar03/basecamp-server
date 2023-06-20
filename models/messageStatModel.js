@@ -12,6 +12,7 @@ export const MessageStatSchema = mongoose.Schema(
       //  ref: Group,
       required: true,
     },
+
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: User,
@@ -31,6 +32,7 @@ export const MessageStatSchema = mongoose.Schema(
       default: false,
     },
   },
+
   {
     timestamps: true,
   }
