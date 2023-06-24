@@ -11,7 +11,6 @@ import mongoose from "mongoose";
 // @route   POST /api/messages
 // @access  Private
 const createNewMessage = asyncHandler(async (req, res) => {
-  console.log("parent_id :: ", req.body.parent_id);
   const message = await Message.create(req.body);
   await Message.findOneAndUpdate(
     { _id: new mongoose.Types.ObjectId(req.body.parent_id) },
@@ -56,14 +55,35 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
 
   if (req.query.parentId) {
     query["parent_id"] = req.query.parentId;
-  }
-
-  if (req.query.type) {
+  } else {
+    console.log("parent text");
     if (req.query.type == 0) {
       query["parent_id"] = null;
     }
-    query["type"] = req.query.type;
   }
+  if (req.query.type) {
+    // if (req.query.type == 0 && query["parent_id"] == null) {
+    //   query["type"] = req.query.type;
+    // } else {
+    query["type"] = req.query.type;
+    // }
+  }
+  // if (req.query.parentId) {
+  //   query["parent_id"] = req.query.parentId;
+  // } else {
+  //
+  //     query["parent_id"] = null;
+  //
+  // }
+  //
+  // if (req.query.type) {
+  //   if (req.query.type == 0) {
+  //     query["parent_id"] = null;
+  //   }
+  //   query["type"] = req.query.type;
+  // }
+
+
 
   let sortQuery1 = {};
   let totalCount, pagination;
@@ -73,7 +93,7 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
     sortQuery1 = req.query.popular ? { like_count: -1 } : { fav_count: -1 };
 
     const messages = await Message.find(query)
-      .populate("created_by")
+      .populate("created_by group_id")
       .sort(sortQuery1)
       .limit(numPerPage)
       .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
@@ -84,13 +104,15 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
       totalCount,
       currentPage: pageNum,
     };
+    const messageIds = messages.map((message) => message._id);
+    await getMessageCommonFields(messageIds,loggedUserId,messages)
     return res.status(200).json({ messages, pagination });
   }
 
   if (req.query.recent) {
     // Apply recent filter if selected
     const messages = await Message.find(query)
-      .populate("created_by")
+      .populate("created_by group_id")
       .sort({ createdAt: -1 })
       .limit(numPerPage)
       .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
@@ -101,6 +123,8 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
       totalCount,
       currentPage: pageNum,
     };
+    const messageIds = messages.map((message) => message._id);
+    await getMessageCommonFields(messageIds,loggedUserId,messages)
     return res.status(200).json({ messages, pagination });
   }
   const sortQuery = {};
@@ -116,29 +140,50 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
   const messages = await Message.find(query)
     .sort(sortQuery)
     .limit(numPerPage)
-    .populate("created_by")
+    .populate("created_by group_id")
     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
 
   const messageIds = messages.map((message) => message._id);
+  await getMessageCommonFields(messageIds,loggedUserId,messages)
+  // const messageStats = await MessageStat.find({
+  //   message_id: { $in: messageIds },
+  //   user_id: loggedUserId,
+  // });
+  //
+  // console.log("message stats :: ", messageStats)
+  // messageStats.forEach((messageStat) => {
+  //   for (let i = 0; i < messages.length; ++i) {
+  //     if (messages[i]._id.toString() === messageStat.message_id.toString()) {
+  //       messages[i]._doc.is_liked = messageStat.is_liked;
+  //       messages[i]._doc.is_disliked = messageStat.is_disliked;
+  //
+  //       messages[i]._doc.is_fav = messageStat.is_fav;
+  //       break;
+  //     }
+  //   }
+  // });
+  res.status(200).json({ messages, pagination });
+});
 
+
+async function getMessageCommonFields(messageIds,loggedUserId,messages){
   const messageStats = await MessageStat.find({
     message_id: { $in: messageIds },
     user_id: loggedUserId,
   });
 
+  // console.log("message stats :: ", messageStats)
   messageStats.forEach((messageStat) => {
     for (let i = 0; i < messages.length; ++i) {
       if (messages[i]._id.toString() === messageStat.message_id.toString()) {
         messages[i]._doc.is_liked = messageStat.is_liked;
         messages[i]._doc.is_disliked = messageStat.is_disliked;
-
         messages[i]._doc.is_fav = messageStat.is_fav;
         break;
       }
     }
   });
-  res.status(200).json({ messages, pagination });
-});
+}
 
 /// /////
 
