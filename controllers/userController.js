@@ -11,9 +11,11 @@ import bcrypt from "bcrypt";
 // @access  Public
 
 const login = asyncHandler(async (req, res, next) => {
+  console.log('Logging in')
 
   try {
     let { email, password } = req.body
+    console.log(req.body);
     if (!email || !password) {
       return next(new AppError('Invalid credentials', 401))
     }
