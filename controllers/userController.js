@@ -29,7 +29,7 @@ const login = asyncHandler(async (req, res, next) => {
 
     console.log(user)
 
-    if (!user) return next(new AppError('User not found', 400))
+    if (!user) res.status(400).json({ "error": "User not found." })
 
     console.log('got user')
 
