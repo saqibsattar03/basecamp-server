@@ -21,19 +21,27 @@ const login = asyncHandler(async (req, res, next) => {
     }
 
     email = email.toString().toLowerCase()
+    console.log('email', email)
 
     const user = await User.findOne({
       $or: [{ email }, { username: email }]
     })
 
+    console.log(user)
+
     if (!user) return next(new AppError('User not found', 400))
+
+    console.log('got user')
 
     const id = user?._id
 
+    console.log('trying to match pass')
     const passwordMatch = await user.matchPassword(password)
 
     if (passwordMatch && user) {
+      console.log('pass matched')
       const token = jwt.sign({ email, id }, process.env.JWT_SECRET)
+      console.log('got token')
       res.status(200).json({ user, token })
     } else {
       return next(new AppError('Invalid credentials', 401))
