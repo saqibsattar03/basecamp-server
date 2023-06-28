@@ -7,7 +7,7 @@ import {
   updateGroup,
   updateGroupFollowers,
   getFilteredGroups,
-  getPopularGroups
+  getPopularGroups, populateFollowersByGroupId
 } from '../controllers/groupController.js'
 import protect from '../middleware/authMiddleware.js'
 
@@ -20,6 +20,7 @@ router.route('/:id').get(protect, getGroupById)
 router.route('/:id').patch(protect, updateGroup)
 router.route('/updateFollowers/:id').put(protect, updateGroupFollowers)
 router.route('/myGroups/filter').get(protect, getMyGroups)
+router.route('/populate-followers/:id').get(protect, populateFollowersByGroupId)
 
 router.route('/:id').delete(protect, deleteGroup)
 

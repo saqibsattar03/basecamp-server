@@ -37,6 +37,9 @@ export const GroupSchema = mongoose.Schema(
       type: Number,
       default: 0
     },
+    bio:{
+        type:String
+    },
     followers: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -46,7 +49,8 @@ export const GroupSchema = mongoose.Schema(
   },
   {
     timestamps: true
-  }
+  },
+
 )
 
 const Group = mongoose.model('Group', GroupSchema)

@@ -22,6 +22,7 @@ const createNewGroup = asyncHandler(async (req, res) => {
 // @desc    Get filtered groups
 // @route   GET /api/groups/filter?text=trip2023&pageNum=0&numPerPage=20&filterKey=createdAt&direction=asc
 // @access  Private/Admin
+
 const getFilteredGroups = asyncHandler(async (req, res) => {
   let query = {}
   if (req.query.text) {
@@ -52,7 +53,6 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
     .sort(sortQuery)
     .limit(numPerPage)
     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
-
   res.status(200).json({ groups, pagination })
 })
 
@@ -60,7 +60,6 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
 
 const getMyGroups = asyncHandler(async (req, res) => {
   const userId = req.user._id
-  console.log(userId)
   const query = { followers: userId }
 
   const pageNum = req.query.pageNum || 0
@@ -78,9 +77,9 @@ const getMyGroups = asyncHandler(async (req, res) => {
   }
 
   const groups = await Group.find(query)
-    .sort(sortQuery)
-    .limit(numPerPage)
-    .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
+  .sort(sortQuery)
+  .limit(numPerPage)
+  .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
 
   res.status(200).json({ groups, pagination })
 })
@@ -88,6 +87,7 @@ const getMyGroups = asyncHandler(async (req, res) => {
 // @desc    Get popular groups
 // @route   GET /api/groups/popular?numPerPage=10&pageNum=0
 // @access  Private/Admin
+
 const getPopularGroups = asyncHandler(async (req, res) => {
   const pageNum = req.query.pageNum || 0
   const numPerPage = parseInt(req.query.numPerPage) || 25
@@ -104,7 +104,6 @@ const getPopularGroups = asyncHandler(async (req, res) => {
       ]
     }
   }
-
   const results = await Group.aggregate([
     {
       $match: query
@@ -125,7 +124,7 @@ const getPopularGroups = asyncHandler(async (req, res) => {
           { $limit: numPerPage }
         ]
       }
-    }
+    },
   ])
 
   if (
@@ -218,6 +217,38 @@ const deleteGroup = asyncHandler(async (req, res, next) => {
   res.status(200).json(group)
 })
 
+
+// ******** GET ********
+
+// @desc    Get populated followers
+// @route   GET /groups/populate-followers/:groupId
+// @access  Private
+const populateFollowersByGroupId = asyncHandler(async (req, res, next) => {
+  try {
+    const pageNum = req.query.pageNum || 0
+    const filterKey = req.query.filterKey || 'createdAt'
+    const direction = req.query.direction || 'asc'
+    const numPerPage = req.query.numPerPage || 25
+    const sortQuery = {}
+    sortQuery[filterKey] = direction
+
+
+    const response = await Group.findById(req.params.id)
+        .populate('followers', 'first_name last_name avatar is_verified username')
+        .select('-_id -name -location -date -username -profile_image -created_by -messages_count -media_count -createdAt -updatedAt -__v')
+        .limit(numPerPage)
+        .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
+        .sort(sortQuery)
+    const pagination = {
+      totalCount: response.followers.length,
+      currentPage: pageNum
+    }
+    res.status(200).json({"followers":response.followers,pagination});
+  } catch (error) {
+    next(error);
+  }
+});
+
 export {
   createNewGroup,
   getGroupById,
@@ -226,5 +257,6 @@ export {
   getMyGroups,
   updateGroup,
   updateGroupFollowers,
-  deleteGroup
+  deleteGroup,
+  populateFollowersByGroupId
 }
