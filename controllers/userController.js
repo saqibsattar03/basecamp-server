@@ -44,6 +44,7 @@ const login = asyncHandler(async (req, res, next) => {
       console.log('got token')
       res.status(200).json({ user, token })
     } else {
+      console.log('failed checks throwing error...')
       return next(new AppError('Invalid credentials', 401))
     }
   } catch (e) {
