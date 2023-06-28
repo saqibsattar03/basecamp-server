@@ -233,10 +233,15 @@ const getSavedMessages = asyncHandler(async (req, res) => {
   )
     .populate({
       path: 'message_id',
-      populate: {
+      populate:[ {
         path: 'created_by',
-        model: 'User'
-      }
+        model: 'User',},
+
+          {
+                  path: 'group_id',
+                  model: 'Group',
+                },
+        ]
     })
     .sort({ createdAt: 'asc' })
     .limit(numPerPage)
