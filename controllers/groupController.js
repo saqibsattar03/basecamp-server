@@ -36,6 +36,8 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
     }
   }
   const pageNum = req.query.pageNum || 0
+
+
   const filterKey = req.query.filterKey || 'createdAt'
   const direction = req.query.direction || 'asc'
   const numPerPage = req.query.numPerPage || 25
