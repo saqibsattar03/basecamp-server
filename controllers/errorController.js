@@ -6,6 +6,7 @@ const handleCastErrorDB = (err) => {
 }
 
 const handleDuplicateFieldsDB = (err) => {
+  console.log("here")
   const message = `Duplicate Field Value: "${err.keyValue.title}". Please input another value! `
   return new AppError(message, 409)
 }
@@ -68,19 +69,21 @@ const sendErrorProd = (err, req, res) => {
   }
   // Operational, trusted error: send message to the client
   if (err.isOperational) {
-    return res.status(err.statusCode).render('error', {
-      title: 'Something went wrong',
-      msg: err.message
-    })
+    // return res.status(err.statusCode).render('error', {
+    //   title: 'Something went wrong',
+    //   msg: err.message
+    // })
+    return res.status(err.statusCode).json(err.message)
   }
   // Programming or other error: Don't leak error details
   // 1): Log
   console.error('Error: 💥', err)
   // 2): Send Response
-  return res.status(err.statusCode).render('error', {
-    title: 'Something went wrong',
-    msg: 'Please! Try again later.'
-  })
+  // return res.status(err.statusCode).render('error', {
+  //   title: 'Something went wrong',
+  //   msg: 'Please! Try again later.'
+  // })
+  return res.status(err.statusCode).json(err.message)
 }
 
 export const globalErrorHandler = (err, req, res, next) => {
