@@ -63,9 +63,14 @@ const createNewUser = asyncHandler(async (req, res, next) => {
   username = username.toString().toLowerCase()
   email = email.toString().toLowerCase()
   if (await User.findOne({ $or: [{ username }, { email }] })) {
-    return next(
-      new AppError('User with this email/username already exists!', 409)
-    )
+    const err = new Error("User with this email/username already exists!")
+    err.statusCode = 409
+    throw err
+    
+    // throw new Error('User with this email/username already exists!')
+    // return next(
+    //   new AppError('User with this email/username already exists!', 409)
+    // )
   }
 
   const user = await User.create(req.body)
