@@ -47,6 +47,7 @@ const login = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private
 const createNewUser = asyncHandler(async (req, res, next) => {
+  console.log("user data :: ", req.body)
   let { username, email, password } = req.body
   username = username.toString().toLowerCase()
   email = email.toString().toLowerCase()
