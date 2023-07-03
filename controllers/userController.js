@@ -11,29 +11,40 @@ import bcrypt from "bcrypt";
 // @access  Public
 
 const login = asyncHandler(async (req, res, next) => {
+  console.log('Logging in')
 
   try {
     let { email, password } = req.body
+    console.log(req.body);
     if (!email || !password) {
       return next(new AppError('Invalid credentials', 401))
     }
 
     email = email.toString().toLowerCase()
+    console.log('email', email)
 
     const user = await User.findOne({
       $or: [{ email }, { username: email }]
     })
 
-    if (!user) return next(new AppError('User not found', 400))
+    console.log(user)
+
+    if (!user) res.status(400).json({ "error": "User not found." })
+
+    console.log('got user')
 
     const id = user?._id
 
+    console.log('trying to match pass')
     const passwordMatch = await user.matchPassword(password)
 
     if (passwordMatch && user) {
+      console.log('pass matched')
       const token = jwt.sign({ email, id }, process.env.JWT_SECRET)
+      console.log('got token')
       res.status(200).json({ user, token })
     } else {
+      console.log('failed checks throwing error...')
       return next(new AppError('Invalid credentials', 401))
     }
   } catch (e) {
