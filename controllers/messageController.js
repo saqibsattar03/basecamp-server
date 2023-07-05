@@ -57,7 +57,7 @@ const getFilteredMessages = asyncHandler(async (req, res) => {
     query["parent_id"] = req.query.parentId;
   } else {
     console.log("parent text");
-    if (req.query.type == 0) {
+    if (req.query.type === 0) {
       query["parent_id"] = null;
     }
   }
@@ -193,11 +193,12 @@ const getMyGroupsMessages = asyncHandler(async (req, res) => {
 
   const loggedUserId = req.user._id;
   const messages = await Message.find()
-    .limit(numPerPage)
-    .populate("created_by")
-    .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
+      .limit(numPerPage)
+      .populate("created_by")
+      .populate("group_id")
+      .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
 
-  const allGroupIds = messages.map((message) => message.group_id);
+  const allGroupIds = messages.map((message) => message.group_id._id);
   const groupQuery = {
     _id: { $in: allGroupIds },
     followers: loggedUserId,
@@ -207,13 +208,14 @@ const getMyGroupsMessages = asyncHandler(async (req, res) => {
   const myGroupsIds = groupsWithUser.map((group) => group._id.toString());
 
   const filteredMessages = messages.filter((message) =>
-    myGroupsIds.includes(message.group_id.toString())
+    myGroupsIds.includes(message.group_id._id.toString())
   );
   const filteredMessageIds = filteredMessages.map((message) => message._id);
 
   const messageCount = await Message.countDocuments({
     _id: { $in: filteredMessageIds },
   });
+
 
   const pagination = {
     totalCount: messageCount,

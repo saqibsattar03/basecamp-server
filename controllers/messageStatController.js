@@ -224,6 +224,8 @@ const getSavedMessages = asyncHandler(async (req, res) => {
 
   const loggedUserId = req.query.userId
 
+  console.log("loggedin user id :: ", loggedUserId)
+
   const messageStats = await MessageStat.find(
     {
       is_fav: true,
@@ -247,7 +249,7 @@ const getSavedMessages = asyncHandler(async (req, res) => {
     .limit(numPerPage)
     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0)
     .lean()
-
+console.log("message stats :: ", messageStats)
   const messageStatCount = messageStats.length
 
   const pagination = {
