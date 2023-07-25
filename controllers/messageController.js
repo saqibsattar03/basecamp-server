@@ -228,6 +228,7 @@ const getMyGroupsMessages = asyncHandler(async (req, res) => {
       .find({group_id : {$in:groupsWithUser}})
       .populate("group_id")
       .populate("created_by")
+      .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
 
   const messageCount = await Message.countDocuments({
     _id: { $in: messages },
