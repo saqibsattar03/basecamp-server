@@ -151,7 +151,7 @@ const getPopularGroups = asyncHandler(async (req, res) => {
 })
 
 // @desc    Get group by ID
-// @route   GET /api/groups/:id
+// @route   GET groups/:id
 // @access  Private
 const getGroupById = asyncHandler(async (req, res) => {
   const group = await Group.findById(req.params.id)
@@ -165,7 +165,6 @@ const getGroupById = asyncHandler(async (req, res) => {
 // @route   PUT /api/groups/:id
 // @access  Private
 const updateGroup = asyncHandler(async (req, res, next) => {
-  console.log(req.body)
   const group = await Group.findByIdAndUpdate(req.params.id, req.body)
 
   // If we don't find the message, throw an error.
