@@ -192,37 +192,52 @@ const getMyGroupsMessages = asyncHandler(async (req, res) => {
   const numPerPage = req.query.numPerPage || 25;
 
   const loggedUserId = req.user._id;
-  const messages = await Message.find()
-      .limit(numPerPage)
-      .populate("created_by")
+  // const messages = await Message.find()
+  //     .limit(numPerPage)
+  //     .populate("created_by")
+  //     .populate("group_id")
+  //     .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
+  //
+  // console.log("loggedUserId :: ", loggedUserId)
+  // const allGroupIds = messages.map((message) => message.group_id._id);
+  // const groupQuery = {
+  //   // _id: { $in: allGroupIds },
+  //   followers: loggedUserId,
+  // };
+  // console.log("groups with users :: ", groupsWithUser)
+  // const myGroupsIds = groupsWithUser.map((group) => group._id.toString());
+  // console.log("my group ids :: ", myGroupsIds);
+  // const filteredMessages = messages.filter((message) =>
+  //   myGroupsIds.includes(message.group_id._id.toString())
+  // );
+  // const filteredMessageIds = filteredMessages.map((message) => message._id);
+  //
+  // const messageCount = await Message.countDocuments({
+  //   _id: { $in: filteredMessageIds },
+  // });
+  //
+  //
+  // const pagination = {
+  //   totalCount: messageCount,
+  //   currentPage: pageNum,
+  // };
+  //
+  // res.status(200).json({ messages: filteredMessages, pagination });
+  const groupsWithUser = await Group.find({followers: loggedUserId}).select('_id');
+  const messages = await Message
+      .find({group_id : {$in:groupsWithUser}})
       .populate("group_id")
-      .skip(numPerPage > 0 ? numPerPage * (pageNum - 1) : 0);
-
-  const allGroupIds = messages.map((message) => message.group_id._id);
-  const groupQuery = {
-    _id: { $in: allGroupIds },
-    followers: loggedUserId,
-  };
-
-  const groupsWithUser = await Group.find(groupQuery);
-  const myGroupsIds = groupsWithUser.map((group) => group._id.toString());
-
-  const filteredMessages = messages.filter((message) =>
-    myGroupsIds.includes(message.group_id._id.toString())
-  );
-  const filteredMessageIds = filteredMessages.map((message) => message._id);
+      .populate("created_by")
 
   const messageCount = await Message.countDocuments({
-    _id: { $in: filteredMessageIds },
+    _id: { $in: messages },
   });
-
 
   const pagination = {
     totalCount: messageCount,
     currentPage: pageNum,
   };
-
-  res.status(200).json({ messages: filteredMessages, pagination });
+  res.status(200).json({ messages: messages, pagination});
 });
 
 // @desc    Get message by ID
