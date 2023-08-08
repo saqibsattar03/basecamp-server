@@ -61,7 +61,8 @@ const getFilteredGroups = asyncHandler(async (req, res) => {
 /// /
 
 const getMyGroups = asyncHandler(async (req, res) => {
-  const userId = req.user._id
+
+  const userId = req.query.id
   const query = { followers: userId }
 
   const pageNum = req.query.pageNum || 0

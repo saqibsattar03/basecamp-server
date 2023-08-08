@@ -13,6 +13,12 @@ export const GroupSchema = mongoose.Schema(
       type: String,
       index: { sparse: true }
     },
+      longitude:{
+        type:Number
+      },
+      latitude:{
+        type:Number
+      },
     date: {
       type: Date
     },
@@ -50,6 +56,7 @@ export const GroupSchema = mongoose.Schema(
   {
     timestamps: true
   },
+
 
 )
 
